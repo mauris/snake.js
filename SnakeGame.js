@@ -1,7 +1,7 @@
 const Direction = require('./Direction');
 
 function SnakeGame(size) {
-  assert(size > 4);
+  // assert(size > 4);
   this._size = size;
 
   // length of snake, start with 2
@@ -18,11 +18,23 @@ function SnakeGame(size) {
   this._isGameOver = false;
 }
 
+SnakeGame.prototype.getSize = function getSize() {
+  return this._size;
+};
+
 SnakeGame.prototype.getSnakeLength = function getSnakeLength() {
   return this._snakeLength;
 };
 
-SnakeGame.prototype.isGameOver() = function isGameOver() {
+SnakeGame.prototype.getSnake = function getSnake() {
+  return this._snake;
+}
+
+SnakeGame.prototype.getFoodPosition = function getFoodPosition() {
+  return this._foodPosition;
+}
+
+SnakeGame.prototype.isGameOver = function isGameOver() {
   return this._isGameOver;
 }
 
@@ -31,7 +43,15 @@ SnakeGame.prototype.step = function step(dir) {
     throw new Error('Game is already over');
   }
   // set a new direction if player decides to put a new direction
-  this._currentDirection = dir || this._currentDirection;
+  if (dir !== null) {
+    let isNotOppositeDirection = (this._currentDirection == Direction.UP && dir != Direction.DOWN)
+      || (this._currentDirection == Direction.DOWN && dir != Direction.UP)
+      || (this._currentDirection == Direction.LEFT && dir != Direction.RIGHT)
+      || (this._currentDirection == Direction.RIGHT && dir != Direction.LEFT);
+    if (isNotOppositeDirection) {
+      this._currentDirection = dir;
+    }
+  }
 
   // get the head position of the snake
   let head = this._snake[0];
@@ -49,21 +69,21 @@ SnakeGame.prototype.step = function step(dir) {
       break;
     case Direction.DOWN:
       newHead[0] += 1;
-      if (newHead[0] > this._size) {
+      if (newHead[0] >= this._size) {
         // wrap around the area
         newHead[0] -= this._size;
       }
       break;
     case Direction.LEFT:
       newHead[1] -= 1;
-      if (newHead[1] > this._size) {
+      if (newHead[1] < 0) {
         // wrap around the area
         newHead[1] += this._size;
       }
       break;
     case Direction.RIGHT:
       newHead[1] += 1;
-      if (newHead[1] > this._size) {
+      if (newHead[1] >= this._size) {
         // wrap around the area
         newHead[1] -= this._size;
       }
@@ -90,7 +110,7 @@ SnakeGame.prototype.step = function step(dir) {
     return;
   }
   if (this._snake.filter(g => isSamePosition(g, newHead)).length > 1) {
-    this.isGameOver = true;
+    this._isGameOver = true;
   }
 };
 
@@ -99,7 +119,7 @@ function isSamePosition(pos1, pos2) {
 }
 
 function generateRandomFoodPosition(game) {
-  assert(game instanceof SnakeGame);
+  // assert(game instanceof SnakeGame);
 
   if (game._snakeLength == game._size * game._size) {
     // snake has already optimally occupied the entire space
@@ -119,7 +139,7 @@ function generateRandomFoodPosition(game) {
 }
 
 function randomNumberBetween(min, max) {
-  return Math.random * (max - min) + min;
+  return Math.floor(Math.random() * (max - min)) + min;
 }
 
 function generateRandomPosition(size) {
